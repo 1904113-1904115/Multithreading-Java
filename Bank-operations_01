@@ -1,0 +1,141 @@
+import java.util.ArrayList;
+import java.util.List;
+
+class OperationsQueue {
+    private final List<Integer> operations = new ArrayList<>();
+
+    public synchronized void addSimulation(int totalSimulation) {
+
+        // Add 50 random numbers in the operations list. The number will be range from -100 to 100. It cannot be zero.
+        for (int i = 0; i < totalSimulation; i++) {
+            int random = (int) (Math.random() * 200) - 100;
+            if (random != 0) {
+                operations.add(random);
+            }
+            System.out.println(i + ". New operation added: " + random);
+            // add small delay to simulate the time taken for a new customer to arrive
+            try {
+                Thread.sleep((int) (Math.random() * 80));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        operations.add(-9999);
+    }
+    public synchronized void add(int amount) {
+        operations.add(amount);
+    }
+
+    public synchronized int getNextItem() {
+        // add a small delay to simulate the time taken to get the next operation.
+        while(operations.isEmpty()) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        return operations.remove(0);
+    }
+}
+class Bank {
+    String accountNumber;
+
+    OperationsQueue operationsQueue;
+
+    int balance = 0;
+
+    public Bank(String accountNumber, OperationsQueue operationsQueue) {
+        this.accountNumber = accountNumber;
+        this.operationsQueue = operationsQueue;
+    }
+
+    // A deposit function that will run in parallel on a separate thread. It will be a loop where in each iteration, it read the amount from the operationQueue and deposit the amount.
+    public synchronized void deposit() {
+        //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
+        // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
+        while (true) {
+            int amount = operationsQueue.getNextItem();
+            if(amount == -9999) {
+                break;
+            }
+            if (amount>0) {
+                balance =  balance + amount;
+                System.out.println("Deposited: " + amount + " Balance: " + balance);
+            }
+            else{
+                operationsQueue.add(amount);
+                System.out.println("operation added back "+amount);
+            }
+
+        }
+    }
+
+    // A withdraw function that will run in parallel on a separate thread. It will be a loop where in each iteration, it read the amount from the operationQueue and withdraw the amount.
+    public synchronized void withdraw() {
+        while (true) {
+            int amount = operationsQueue.getNextItem();
+            if(amount == -9999) {
+                break;
+            }
+
+            if(balance+amount<0){
+
+                System.out.println("Not enough balance to withdraw "+amount);
+                continue;
+            }
+
+            if (amount<0) {
+                balance =  balance + amount;
+                System.out.println("Withdrawn: " + amount + " Balance: " + balance);
+            }
+            else{
+                operationsQueue.add(amount);
+                System.out.println("operation added back "+amount);
+            }
+
+        }
+    }
+}
+
+public class Main {
+
+
+    public static void main(String[] args) {
+
+
+
+        System.out.println("Hello and welcome!");
+
+        System.out.printf("Initializing banking system..");
+
+        int totalNumberOfSimulaion = 10;
+        OperationsQueue operationsQueue = new OperationsQueue();
+        Bank bank = new Bank("123", operationsQueue);
+
+        System.out.println("Initializing simulation....");
+        Thread simulationThread = new Thread(() -> {
+            operationsQueue.addSimulation(totalNumberOfSimulaion);
+        });
+        simulationThread.start();
+
+
+        System.out.printf("Initializing deposit systen....");
+        Thread depositThread = new Thread(() -> {
+            bank.deposit();
+        });
+        depositThread.start();
+        System.out.println("coompleted");
+
+        System.out.printf("Initializing withdraw systen....");
+        Thread withdrawThread = new Thread(() -> {
+            bank.withdraw();
+        });
+        withdrawThread.start();
+        System.out.println("coompleted");
+
+
+        System.out.println("coompleted");
+
+    }
+}
