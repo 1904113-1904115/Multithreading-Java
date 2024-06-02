@@ -19,17 +19,18 @@ public class Bank {
     public void deposit() {
         //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
         // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-        lock.lock();
-
-        try {
 
         while (true) {
 
+            lock.lock();
+
+            try {
 
 
 
                 int amount = operationsQueue.getNextItem();
                 if (amount == -9999) {
+                    operationsQueue.add(amount);
                     break;
                 }
                 if (amount > 0) {
@@ -43,28 +44,30 @@ public class Bank {
                 }
 
             }
-
-        }
-
         finally {
-            lock.unlock();
+                lock.unlock();
+            }
+
         }
+
+
     }
 
     // A withdraw function that will run in parallel on a separate thread. It will be a loop where in each iteration, it read the amount from the operationQueue and withdraw the amount.
     public void withdraw() {
 
-        lock.lock();
 
-        try{
 
         while (true) {
 
+            lock.lock();
 
+            try{
 
 
             int amount = operationsQueue.getNextItem();
             if(amount == -9999) {
+                operationsQueue.add(amount);
                 break;
             }
 
@@ -81,11 +84,13 @@ public class Bank {
                     System.out.println("Operation added back " + amount);
                 }
             }
+
+            finally {
+                lock.unlock(); // Release the lock
+            }
         }
 
-        finally {
-            lock.unlock(); // Release the lock
-        }
+
 
     }
 }

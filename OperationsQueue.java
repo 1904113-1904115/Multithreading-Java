@@ -8,8 +8,7 @@ public class OperationsQueue {
     public void addSimulation(int totalSimulation) {
 
         // Add 50 random numbers in the operations list. The number will be range from -100 to 100. It cannot be zero.
-        lock.lock();
-        try {
+
 
 
             for (int i = 0; i < totalSimulation; i++) {
@@ -26,29 +25,16 @@ public class OperationsQueue {
                 }
             }
             operations.add(-9999);
-
-        }
-        finally {
-            lock.unlock();
-        }
     }
     public void add(int amount) {
-        lock.lock();
-        try{
             operations.add(amount);
-        }
-        finally {
-            lock.unlock();
-        }
 
     }
 
     public int getNextItem() {
         // add a small delay to simulate the time taken to get the next operation.
 
-        lock.lock();
 
-        try {
             while (operations.isEmpty()) {
                 try {
                     Thread.sleep(100);
@@ -58,8 +44,4 @@ public class OperationsQueue {
             }
             return operations.remove(0);
         }
-        finally {
-            lock.unlock();
-        }
-    }
 }

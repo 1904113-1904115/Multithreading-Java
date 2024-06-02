@@ -6,7 +6,6 @@ import java.util.concurrent.locks.Lock;
 public class Main {
 
 
-
     private Lock lock = new ReentrantLock();
 
     public static void main(String[] args) {
