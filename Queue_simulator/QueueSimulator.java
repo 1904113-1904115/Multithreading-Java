@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class QueueSimulator {
@@ -21,7 +19,6 @@ public class QueueSimulator {
 
         while (currentTime < endTime) {
             int nextArrival = ThreadLocalRandom.current().nextInt(20, 61); // 20 to 60 seconds
-            //currentTime += nextArrival;
             if(nextArrival<=endTime-currentTime) {
                 Customer customer = new Customer(currentTime);
                 totalCustomersArrived++;
@@ -31,9 +28,6 @@ public class QueueSimulator {
                     customer.setWasServed(false);
                 }
             }
-
-
-           
             currentTime++;
         }
         bankQueue.stop();
@@ -41,8 +35,8 @@ public class QueueSimulator {
 
     
     public void printStatistics() {
-        totalCustomersServed=bankQueue.getTotalservedCustomer();
-        totalServiceTime=bankQueue.getTotalServiceTime();
+        totalCustomersServed = bankQueue.getTotalservedCustomer();
+        totalServiceTime = bankQueue.getTotalServiceTime();
         double averageServiceTime = (double) totalServiceTime / totalCustomersServed;
         System.out.println("Total customers arrived: " + totalCustomersArrived);
         System.out.println("Total customers served: " + totalCustomersServed);
